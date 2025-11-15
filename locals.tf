@@ -6,4 +6,6 @@ locals {
 
   subnet_app_name = "subnet-app"
   subnet_db_name  = "subnet-db"
+
+  vm_name = var.vm_name
 }

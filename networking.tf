@@ -13,7 +13,7 @@ module "vnet" {
   source  = "Azure/avm-res-network-virtualnetwork/azurerm"
   version = "0.16.0"
 
-  parent_id     = module.rg_network.id
+  parent_id     = module.rg_network.resource_id
   location      = local.location
   name          = local.vnet_name
   address_space = var.vnet_address_space
