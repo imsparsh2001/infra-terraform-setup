@@ -6,10 +6,8 @@ terraform {
     }
   }
 
-  # Backend configuration - values will be provided via --backend-config
   backend "azurerm" {
-    # Values are provided via --backend-config file
-    # Example: terraform init --backend-config=Environments/Dev/dev.tfbackend
+    
   }
 }
 

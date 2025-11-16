@@ -10,15 +10,12 @@ module "vm" {
   source  = "Azure/avm-res-compute-virtualmachine/azurerm"
   version = "0.20.0"
 
-  # basic identity & location - using same resource group as networking and storage
   location            = local.location
   resource_group_name = module.rg_network.name
   name                = local.vm_name
   zone                = var.vm_zone
   os_type             = "Linux"
 
-  # Network interfaces configuration (attach into existing subnet_app subnet)
-  # Note: network_interfaces is a map, not a list
   network_interfaces = {
     primary = {
       name = "${local.vm_name}-nic"
@@ -63,5 +60,3 @@ module "vm" {
   }
 
 }
-
-# Note: Public IP is created by the AVM module when create_public_ip_address = true
