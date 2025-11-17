@@ -35,7 +35,7 @@ variable "storage_account_kind" {
 
 variable "storage_account_name" {
   type        = string
-  description = "Storage account name (must be globally unique, 3-24 chars, lowercase alphanumeric)"
+  description = "Storage account name"
 }
 
 # Virtual Machine Variables
@@ -53,19 +53,19 @@ variable "create_public_ip" {
 variable "public_ip_allocation" {
   type        = string
   default     = "Static"
-  description = "Allocation method for public IP (Static or Dynamic)"
+  description = "Allocation method for public IP "
 }
 
 variable "admin_username" {
   type        = string
   default     = "azureuser"
-  description = "Administrator username for the virtual machine"
+  description = "username for the virtual machine"
 }
 
 variable "admin_ssh_public_key" {
   type        = string
   default     = ""
-  description = "SSH public key for Linux VM authentication. If empty, a key will be auto-generated"
+  description = "SSH public key for Linux VM authentication"
   sensitive   = false
 }
 
@@ -84,13 +84,13 @@ variable "os_disk_size_gb" {
 variable "os_disk_type" {
   type        = string
   default     = "Standard_LRS"
-  description = "Storage account type for OS disk (Standard_LRS, Premium_LRS, etc.)"
+  description = "Storage account type for OS disk "
 }
 
 variable "vm_zone" {
   type        = number
   default     = null
-  description = "Availability zone for the VM (1, 2, or 3). Leave null for no zone."
+  description = "Availability zone for the VM"
 }
 
 

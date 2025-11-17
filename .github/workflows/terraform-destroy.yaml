@@ -1,0 +1,72 @@
+name: Terraform Destroy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to destroy"
+        type: choice
+        required: true
+        options:
+          - Dev
+          - Production
+      terraform_version:
+        description: "Terraform CLI version"
+        default: "1.9.5"
+        required: true
+
+env:
+  ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+  ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+  ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  destroy:
+    name: Destroy ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve environment metadata
+        id: env_meta
+        run: |
+          if [ "${{ inputs.environment }}" = "Dev" ]; then
+            echo "backend=Environments/Dev/dev.tfbackend" >> $GITHUB_OUTPUT
+            echo "varfile=Environments/Dev/dev.tfvars" >> $GITHUB_OUTPUT
+          else
+            echo "backend=Environments/Production/prod.tfbackend" >> $GITHUB_OUTPUT
+            echo "varfile=Environments/Production/prod.tfvars" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ inputs.terraform_version }}
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+
+      - name: Terraform Init
+        run: terraform init -backend-config=${{ steps.env_meta.outputs.backend }}
+
+      - name: Terraform Plan (destroy preview)
+        run: terraform plan -destroy -var-file=${{ steps.env_meta.outputs.varfile }} -out=tfplan-destroy.bin
+
+      - name: Confirm resources to be removed
+        run: terraform show tfplan-destroy.bin
+
+      - name: Terraform Destroy
+        run: terraform apply -auto-approve tfplan-destroy.bin

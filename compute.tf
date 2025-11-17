@@ -52,8 +52,8 @@ module "vm" {
   # Account credentials (Linux configuration)
   account_credentials = {
     admin_credentials = {
-      username                        = var.admin_username
-      ssh_keys                        = var.admin_ssh_public_key != "" ? [var.admin_ssh_public_key] : []
+      username                           = var.admin_username
+      ssh_keys                           = var.admin_ssh_public_key != "" ? [var.admin_ssh_public_key] : []
       generate_admin_password_or_ssh_key = var.admin_ssh_public_key == "" ? true : false
     }
     password_authentication_disabled = true
