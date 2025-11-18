@@ -1,4 +1,4 @@
 resource_group_name  = "Sparsh_Jaipuriyar"
-storage_account_name = "terraformbackend1351"
+storage_account_name = "terraformbackend6159"
 container_name       = "tfstate"
 key                  = "dev.terraform.tfstate"
