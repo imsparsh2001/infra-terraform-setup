@@ -1,0 +1,79 @@
+name: 'Terraform'
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        type: choice
+        options:
+          - dev
+          - production
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  terraform:
+    name: 'Terraform'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        environment: [dev, production]
+      fail-fast: false
+    
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ github.workspace }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+        terraform_version: latest
+
+    - name: Set Environment Path
+      id: set-env
+      run: |
+        if [ "${{ matrix.environment }}" == "dev" ]; then
+          echo "env_dir=Dev" >> $GITHUB_OUTPUT
+        else
+          echo "env_dir=Production" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Terraform Init - ${{ matrix.environment }}
+      run: |
+        terraform init \
+          -backend-config=Environments/${{ steps.set-env.outputs.env_dir }}/${{ matrix.environment }}.tfbackend
+
+    - name: Terraform Format Check - ${{ matrix.environment }}
+      run: terraform fmt -recursive -check
+
+    - name: Terraform Validate - ${{ matrix.environment }}
+      run: terraform validate
+
+    - name: Terraform Plan - ${{ matrix.environment }}
+      run: |
+        terraform plan \
+          -var-file=Environments/${{ steps.set-env.outputs.env_dir }}/${{ matrix.environment }}.tfvars \
+          -input=false \
+          -out=tfplan-${{ matrix.environment }}.out
+
+    - name: Terraform Apply - ${{ matrix.environment }}
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: |
+        terraform apply \
+          -auto-approve \
+          -input=false \
+          tfplan-${{ matrix.environment }}.out

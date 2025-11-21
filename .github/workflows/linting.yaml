@@ -1,0 +1,67 @@
+name: 'Terraform Linting'
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  linting:
+    name: 'Terraform Linting'
+    runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ github.workspace }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: latest
+
+    - name: Terraform Format Check
+      run: terraform fmt -recursive -check
+      continue-on-error: false
+
+    - name: Terraform Validate
+      run: |
+        for env_dir in Environments/Dev Environments/Production; do
+          if [ -d "$env_dir" ] && ls "$env_dir"/*.tfvars 1> /dev/null 2>&1; then
+            env_name=$(basename "$env_dir" | tr '[:upper:]' '[:lower:]')
+            echo "Validating $env_name environment..."
+            terraform init -backend=false -reconfigure
+            terraform validate
+            echo "✓ Validation passed for $env_name"
+          fi
+        done
+      continue-on-error: false
+
+    - name: Install TFLint
+      run: |
+        curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+
+    - name: Run TFLint
+      run: |
+        tflint --init
+        tflint --recursive
+      continue-on-error: true
+
+    - name: Install Checkov
+      run: |
+        pip install checkov
+
+    - name: Run Checkov
+      run: |
+        checkov -d . --framework terraform --quiet
+      continue-on-error: true
+
