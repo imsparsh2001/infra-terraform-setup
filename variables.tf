@@ -18,6 +18,12 @@ variable "subnet_db_cidr" {
   default = "10.0.2.0/24"
 }
 
+variable "subnet_appgw_cidr" {
+  type        = string
+  description = "CIDR block for Application Gateway subnet"
+  default     = "10.0.3.0/24"
+}
+
 variable "storage_account_tier" {
   type    = string
   default = "Standard"
@@ -85,4 +91,33 @@ variable "vm_zone" {
   description = "Availability zone for the VM"
 }
 
+# Application Gateway Variables
+variable "appgw_name" {
+  type        = string
+  description = "Name of the Application Gateway"
+}
+
+variable "appgw_sku_name" {
+  type        = string
+  description = "SKU name for Application Gateway (Standard_v2 or WAF_v2)"
+  default     = "Standard_v2"
+}
+
+variable "appgw_sku_tier" {
+  type        = string
+  description = "SKU tier for Application Gateway (Standard_v2 or WAF_v2)"
+  default     = "Standard_v2"
+}
+
+variable "appgw_capacity" {
+  type        = number
+  description = "Capacity (instance count) for Application Gateway"
+  default     = 2
+}
+
+variable "create_appgw_public_ip" {
+  type        = bool
+  description = "Whether to create a public IP for Application Gateway"
+  default     = true
+}
 

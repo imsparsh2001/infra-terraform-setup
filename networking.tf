@@ -34,3 +34,10 @@ resource "azurerm_subnet" "subnet_db" {
   address_prefixes     = [var.subnet_db_cidr]
 }
 
+resource "azurerm_subnet" "subnet_appgw" {
+  name                 = local.subnet_appgw_name
+  resource_group_name  = module.rg_network.name
+  virtual_network_name = module.vnet.name
+  address_prefixes     = [var.subnet_appgw_cidr]
+}
+

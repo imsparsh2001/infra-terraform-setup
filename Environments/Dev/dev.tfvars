@@ -7,6 +7,7 @@ location = "eastus"
 vnet_address_space = ["10.0.0.0/16"]
 subnet_app_cidr    = "10.0.1.0/24"
 subnet_db_cidr     = "10.0.2.0/24"
+subnet_appgw_cidr  = "10.0.3.0/24"
 
 # Storage Account Configuration
 storage_account_name             = "stdevnetworkeastus001"
@@ -29,4 +30,10 @@ admin_ssh_public_key = ""
 os_disk_size_gb = 30
 os_disk_type    = "Standard_LRS"
 
+# Application Gateway Configuration
+appgw_name             = "appgw-dev-main"
+appgw_sku_name         = "Standard_v2"
+appgw_sku_tier         = "Standard_v2"
+appgw_capacity         = 1
+create_appgw_public_ip = true
 
