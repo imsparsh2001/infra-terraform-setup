@@ -1,50 +1,100 @@
-Azure Spoke Landing Zone (Terraform)
+# 🚀 Azure Spoke Landing Zone (Terraform)
 
-Terraform configuration for deploying an Azure spoke environment following hub-and-spoke architecture principles.
-Provides a secure, private foundation for workloads like VMs, Storage Accounts, App Services, or AKS, with centralized monitoring and networking.
+This repository contains **Terraform IaC** to deploy Azure Spoke Landing Zones, including **Azure Red Hat OpenShift (ARO)** clusters and all required Azure infrastructure.
 
-Variables:
+---
 
-environment      = "production"
-environment_code = "p"
-location         = "eastus"
+## 📦 Repository Structure
 
-
-🗂 Repository Structure
-
-infra-terraform-setup/
-├── Environments/
-│   ├── Dev/
-│   │   ├── dev.tfbackend      # Backend configuration for Dev
-│   │   └── dev.tfvars        # Variable values for Dev
-│   └── Production/
-│       ├── prod.tfbackend    # Backend configuration for Prod
-│       └── prod.tfvars      # Variable values for Prod
-├── compute.tf
+```
+├── environments/              # Environment-specific configs
+│   ├── dev/
+│   ├── stg/
+│   └── production/
+├── .github/workflows/         # CI/CD Pipelines
+├── aro.tf
+├── aroinfra.tf
 ├── networking.tf
+├── resources.tf
 ├── storage.tf
+├── monitoring.tf
+├── dns.tf
+├── data.tf
+├── locals.tf
 ├── variables.tf
-└── locals.tf
+├── outputs.tf
+└── provider.tf
+```
+
+---
+
+## ✅ Requirements
+
+Before deploying, ensure you have:
+
+* Azure Subscription with contributor access
+* Terraform **v1.6.0+**
+* Azure CLI installed & logged in
+* Red Hat OpenShift pull secret
+* GitHub repository configured with **OIDC authentication**
+
+---
+
+## ⚡ Quick Start Deployment
 
 
-🚀 Terraform Workflow
+### Development
 
-terraform init --backend-config=Environments/Dev/dev.tfbackend
-terraform fmt -recursive
-terraform validate
-terraform plan -var-file=Environments/Dev/dev.tfvars
-terraform apply -var-file=Environments/Dev/dev.tfvars
+```bash
+terraform init -backend-config=environments/dev/dev.tfbackend
+terraform plan -var-file=environments/dev/dev.tfvars
+terraform apply -var-file=environments/dev/dev.tfvars -auto-approve
+```
+
+### Staging
+
+```bash
+terraform init -backend-config=environments/stg/stage.tfbackend
+terraform plan -var-file=environments/dev/stage.tfvars
+terraform apply -var-file=environments/stg/stage.tfvars -auto-approve
+```
+
+### Production
+
+```bash
+terraform init -backend-config=environments/production/prod.tfbackend
+terraform plan -var-file=environments/dev/prod.tfvars
+terraform apply -var-file=environments/production/prod.tfvars
+```
+---
+## 🌍 Environment Files
+
+Each environment includes:
+
+| File              | Purpose                        |
+| ----------------- | ------------------------------ |
+| `<env>.tfbackend` | Remote state configuration     |
+| `<env>.tfvars`    | Environment-specific variables |
+
+Paths:
+
+* Dev → `environments/dev/`
+* Staging → `environments/stg/`
+* Prod → `environments/production/`
+
+---
+
+## 🔁 CI/CD Pipelines
+
+Automated GitHub Actions workflows:
+
+| Workflow              | Purpose                          |
+| --------------------- | -------------------------------- |
+| terraform-plan.yml    | Validate & plan on pull requests |
+| terraform-apply.yml   | Apply after approval             |
+| terraform-destroy.yml | Manual teardown                  |
+| scheduled-create.yml  | Automated deployment             |
+| scheduled-destroy.yml | Scheduled cleanup                |
+| commands.yml          | Maintenance & admin operations   |
 
 
-terraform init --backend-config=Environments/Production/prod.tfbackend
-terraform fmt -recursive
-terraform validate
-terraform plan -var-file=Environments/Production/prod.tfvars
-terraform apply -var-file=Environments/Production/prod.tfvars
-
-
-🧱 Future Scope
-
-- Add more Resources modules
-- Implement IaC linting (tflint, checkov) for quality checks
-- Set up GitHub Actions workflows for CI/CD automation
